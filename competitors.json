@@ -1,0 +1,18 @@
+{
+  "my_product": {
+    "name": "Your Product",
+    "asin": "YOUR_ASIN_HERE",
+    "price": 79.00,
+    "category": "Wrinkle & Anti-Aging Devices"
+  },
+  "competitors": [
+    {
+      "name": "GLO24K",
+      "asin": "B0947W9C43"
+    },
+    {
+      "name": "REVO Genie",
+      "asin": "B0FV3WRWCB"
+    }
+  ]
+}

@@ -312,6 +312,88 @@ If asked about pricing, factor in competitor prices. If asked about reviews, not
 You have memory of this conversation so reference previous messages when relevant."""
     return ask_claude(system, question, history)
 
+# ── Launch checklist ──────────────────────────────────────────────────────────
+
+def load_checklist():
+    return load_json("launch_checklist.json")
+
+def save_checklist(data):
+    save_json("launch_checklist.json", data)
+
+def get_checklist_summary():
+    checklist = load_checklist()
+    target = datetime.strptime(checklist["target_launch_date"], "%Y-%m-%d")
+    days_left = (target - datetime.now()).days
+    current_stage = checklist["current_stage"]
+    stages = checklist["stages"]
+
+    summary = f"**🚀 LAUNCH TRACKER** — {days_left} days until launch\n\n"
+
+    for stage in stages:
+        total = len(stage["tasks"])
+        done = sum(1 for t in stage["tasks"] if t["done"])
+        is_current = stage["id"] == current_stage
+        is_complete = done == total
+
+        if is_complete:
+            emoji = "✅"
+        elif is_current:
+            emoji = "🔵"
+        else:
+            emoji = "⚪"
+
+        summary += f"{emoji} **Stage {stage['id']}: {stage['name']}** ({done}/{total})\n"
+
+        if is_current:
+            pending = [t for t in stage["tasks"] if not t["done"]]
+            for t in pending:
+                summary += f"  ☐ `{t['id']}` {t['task']}\n"
+
+    return summary, days_left, current_stage
+
+def mark_task_done(task_id):
+    checklist = load_checklist()
+    task_id = task_id.lower().strip()
+    for stage in checklist["stages"]:
+        for task in stage["tasks"]:
+            if task["id"].lower() == task_id:
+                task["done"] = True
+                # Check if stage is complete and advance
+                all_done = all(t["done"] for t in stage["tasks"])
+                if all_done and checklist["current_stage"] == stage["id"]:
+                    if stage["id"] < len(checklist["stages"]):
+                        checklist["current_stage"] = stage["id"] + 1
+                        save_checklist(checklist)
+                        return f"✅ Task `{task_id}` done! 🎉 Stage {stage['id']} complete — moving to Stage {stage['id'] + 1}: **{checklist['stages'][stage['id']]['name']}**"
+                save_checklist(checklist)
+                return f"✅ Task `{task_id}` marked as done!"
+    return f"❌ Task `{task_id}` not found. Type `checklist` to see all task IDs."
+
+def get_daily_checklist_actions():
+    checklist = load_checklist()
+    target = datetime.strptime(checklist["target_launch_date"], "%Y-%m-%d")
+    days_left = (target - datetime.now()).days
+    current_stage = checklist["current_stage"]
+
+    stage = next((s for s in checklist["stages"] if s["id"] == current_stage), None)
+    if not stage:
+        return "🎉 All launch stages complete!"
+
+    pending = [t for t in stage["tasks"] if not t["done"]]
+    done_count = len(stage["tasks"]) - len(pending)
+    total = len(stage["tasks"])
+
+    system = f"""You are an Amazon FBA launch coach. The seller is launching an anti-aging device at $79.
+They are in Stage {current_stage}: {stage['name']} with {days_left} days until launch.
+Completed {done_count}/{total} tasks in this stage.
+Pending tasks: {json.dumps(pending)}
+Competitor context: GLO24K (~2244 reviews, $64.99) and REVO Genie (~newer, $79+).
+
+Give them exactly 3 prioritized actions for TODAY based on their pending tasks and timeline.
+Be specific, urgent if needed, and motivating. Keep it under 150 words."""
+
+    return ask_claude(system, "What are my top 3 launch actions for today?")
+
 # ── Discord helpers ───────────────────────────────────────────────────────────
 
 def split_message(text, limit=1900):
@@ -365,6 +447,9 @@ async def daily_brief_task():
         new_competitors = fetch_new_competitors()
         brief = get_daily_brief(competitor_data, new_competitors)
         header = build_snapshot_header(competitor_data)
+        # Add checklist actions to morning brief
+        checklist_actions = get_daily_checklist_actions()
+        brief += f"\n\n**🚀 LAUNCH ACTIONS FOR TODAY**\n{checklist_actions}"
         await send_to_channel(channel, header + brief)
 
 @tasks.loop(hours=1)
@@ -453,6 +538,28 @@ async def on_message(message):
                 await send_to_channel(message.channel, f"**📅 WEEKLY SUMMARY**\n\n{summary}")
             else:
                 await message.channel.send("No weekly data yet — check back after a few days of running!")
+            return
+
+# ── Launch checklist ──────────────────────────────────────────────────
+        if any(k in text for k in ["checklist", "launch tracker", "launch status", "my progress"]):
+            summary, days_left, stage = get_checklist_summary()
+            urgency = "🔴 You're cutting it close!" if days_left < 14 else "🟡 Stay on track!" if days_left < 30 else "🟢 Good timeline!"
+            await send_to_channel(message.channel, summary + f"\n{urgency}")
+            return
+
+        if text.startswith("done ") or text.startswith("complete "):
+            task_id = user_input.split(" ", 1)[1].strip()
+            result = mark_task_done(task_id)
+            await message.channel.send(result)
+            # Show updated checklist
+            summary, _, _ = get_checklist_summary()
+            await send_to_channel(message.channel, summary)
+            return
+
+        if any(k in text for k in ["what should i do today", "today's tasks", "launch tasks", "what's next"]):
+            await message.channel.send("🎯 Calculating your top actions for today...")
+            actions = get_daily_checklist_actions()
+            await send_to_channel(message.channel, f"**🎯 YOUR LAUNCH ACTIONS FOR TODAY**\n\n{actions}")
             return
 
         # ── General strategy question ─────────────────────────────────────────

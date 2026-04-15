@@ -1,0 +1,64 @@
+{
+  "target_launch_date": "2026-06-14",
+  "current_stage": 1,
+  "stages": [
+    {
+      "id": 1,
+      "name": "Product & Listing Prep",
+      "tasks": [
+        {"id": "1a", "task": "Finalize product photos (main + 6 lifestyle)", "done": false},
+        {"id": "1b", "task": "Write optimized title with top keywords", "done": false},
+        {"id": "1c", "task": "Write 5 bullet points targeting customer pain points", "done": false},
+        {"id": "1d", "task": "Write A+ content / product description", "done": false},
+        {"id": "1e", "task": "Research and finalize backend keywords", "done": false},
+        {"id": "1f", "task": "Set up FBA shipment in Seller Central", "done": false}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Pre-Launch Setup",
+      "tasks": [
+        {"id": "2a", "task": "Get Brand Registry approved", "done": false},
+        {"id": "2b", "task": "Set up PPC campaigns (auto + manual)", "done": false},
+        {"id": "2c", "task": "Create coupon for launch week (10-15% off)", "done": false},
+        {"id": "2d", "task": "Set up Vine program for first reviews", "done": false},
+        {"id": "2e", "task": "Build launch email list or influencer list", "done": false},
+        {"id": "2f", "task": "Inventory received at FBA warehouse", "done": false}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Launch Week",
+      "tasks": [
+        {"id": "3a", "task": "Listing goes live", "done": false},
+        {"id": "3b", "task": "Activate PPC campaigns", "done": false},
+        {"id": "3c", "task": "Share with launch list / influencers", "done": false},
+        {"id": "3d", "task": "First 10 sales achieved", "done": false},
+        {"id": "3e", "task": "Monitor BSR hourly for first 48 hours", "done": false},
+        {"id": "3f", "task": "Respond to any early questions/messages", "done": false}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Review Generation",
+      "tasks": [
+        {"id": "4a", "task": "First Vine review received", "done": false},
+        {"id": "4b", "task": "10 reviews achieved", "done": false},
+        {"id": "4c", "task": "25 reviews achieved", "done": false},
+        {"id": "4d", "task": "Minimum 4.0 star average maintained", "done": false},
+        {"id": "4e", "task": "Respond to any negative reviews", "done": false}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Growth & Optimization",
+      "tasks": [
+        {"id": "5a", "task": "Optimize PPC based on first 2 weeks data", "done": false},
+        {"id": "5b", "task": "A/B test main listing image", "done": false},
+        {"id": "5c", "task": "Hit top 50 in Wrinkle & Anti-Aging Devices", "done": false},
+        {"id": "5d", "task": "50 reviews achieved", "done": false},
+        {"id": "5e", "task": "Achieve $10k/month revenue", "done": false}
+      ]
+    }
+  ]
+}
